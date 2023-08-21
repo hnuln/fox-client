@@ -1,58 +1,42 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <!-- 请求参数配置表格组件 -->
 <template>
-  <div class="tab-header">
-    <span class="config-name">
-      <slot></slot>
-    </span>
-    <span class="config-add">
-      <a-space>
-        <a-button
-          type="secondary"
-          :style="{ width: '27px', height: '27px' }"
-          @click="handleAdd"
-        >
-          <template #icon>
-            <icon-plus />
-          </template>
-        </a-button>
-      </a-space>
-    </span>
-  </div>
-  <div class="configTable">
-    <a-space direction="vertical" size="large" fill>
-      <a-table
-        row-key="id"
-        :columns="columns"
-        :row-selection="rowSelection"
-        :data="data"
-        :pagination="false"
-        class="table"
-        @select="handleSelect"
-      >
-        <template #key="{ rowIndex }">
-          <a-input v-model="data[rowIndex].key" />
-        </template>
-        <template #value="{ rowIndex }">
-          <a-input v-model="data[rowIndex].value" />
-        </template>
-        <template
-          #delete="{ record }"
-          v-if="interfaceStore.queryParams.length > 1"
-        >
-          <a-button
-            type="text"
-            @click="handleDelete(record.id)"
-            class="deleteButton"
-          >
+  <div>
+    <div class="tab-header">
+      <span class="config-name">
+        <slot></slot>
+      </span>
+      <span class="config-add">
+        <a-space>
+          <a-button type="secondary" :style="{ width: '27px', height: '27px' }" @click="handleAdd">
             <template #icon>
-              <icon-delete />
+              <icon-plus />
             </template>
           </a-button>
-        </template>
-      </a-table>
-    </a-space>
-  </div>
+        </a-space>
+      </span>
+    </div>
+    <div class="configTable">
+      <a-space direction="vertical" size="large" fill>
+        <a-table row-key="id" :columns="columns" :row-selection="rowSelection" :data="data" :pagination="false"
+          class="table" @select="handleSelect">
+          <template #key="{ rowIndex }">
+            <a-input v-model="data[rowIndex].key" />
+          </template>
+          <template #value="{ rowIndex }">
+            <a-input v-model="data[rowIndex].value" />
+          </template>
+          <template #delete="{ record }" v-if="interfaceStore.queryParams.length > 1">
+            <a-button type="text" @click="handleDelete(record.id)" class="deleteButton">
+              <template #icon>
+                <icon-delete />
+              </template>
+            </a-button>
+          </template>
+        </a-table>
+      </a-space>
+    </div>
+  </div>>
 </template>
 
 <script setup>
@@ -95,6 +79,7 @@ const handleSelect = (rowKeys) => {
   margin-bottom: 8px;
   line-height: 27px;
 }
+
 .table :deep(.arco-table-td) {
   text-align: right;
 }
