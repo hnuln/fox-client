@@ -10,7 +10,14 @@ import { BASE_URL, TIME_OUT } from '../config'
 function FoxRequest(baseURL, timeout) {
   const instance = axios.create({
     baseURL,
-    timeout
+    timeout,
+    withCredentials: true,
+    headers: {
+      // 设置后端需要的传参类型
+      // 'Content-Type': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Requested-With': 'XMLHttpRequest',
+    }
   })
 
   // 请求拦截器
@@ -75,4 +82,5 @@ function FoxRequest(baseURL, timeout) {
   }
 }
 
-export const request = FoxRequest(BASE_URL, TIME_OUT)
+const request = FoxRequest(BASE_URL, TIME_OUT)
+export default request

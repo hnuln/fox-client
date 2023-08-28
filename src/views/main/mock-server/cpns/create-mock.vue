@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import MockCollection from './create-mock/mock-collection.vue'
+import MockCollection from './mock-collection.vue'
 </script>
 
 <style lang="less" scoped>

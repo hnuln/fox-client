@@ -4,8 +4,8 @@
       <a-layout-sider>Sider</a-layout-sider>
       <a-layout class="contentBox">
         <a-layout-header>Header</a-layout-header>
-       <a-layout>
-         <a-layout-content class="scroll">
+        <a-layout class="expandBox">
+          <a-layout-content class="scroll">
             <div class="interface">
               <div class="header">
                 <div class="name">
@@ -48,18 +48,18 @@
               <div class="body-url">
                 <div class="axios">
                   <a-space>
-                    <a-select :style="{ width: '110px', height: '40px' }" placeholder="GET">
-                      <a-option>GET</a-option>
-                      <a-option>POST</a-option>
-                      <a-option>DELETE</a-option>
-                      <a-option>PUT</a-option>
+                    <a-select :style="{ width: '110px', height: '40px' }" v-model="interfaceStore.method">
+                      <a-option value="GET" >GET</a-option>
+                      <a-option value="POST">POST</a-option>
+                      <a-option value="DELETE">DELETE</a-option>
+                      <a-option value="PUT">PUT</a-option>
                     </a-select>
                   </a-space>
                 </div>
                 <div class="urlInput">
-                  <a-input :style="{ height: '40px' }" placeholder="Enter URL or paste text" v-model="interfaceStore.url" class="URL"
-                    @input="interfaceStore.updateParams" />
-                  <a-input  placeholder="Query Params" v-model="interfaceStore.queryURL" disabled class="queryInput"/>
+                  <a-input :style="{ height: '40px' }" placeholder="Enter URL or paste text" v-model="interfaceStore.url"
+                    class="URL" @input="interfaceStore.updateParams" />
+                  <a-input placeholder="Query Params" v-model="interfaceStore.queryURL" disabled class="queryInput" />
                 </div>
                 <div class="send">
                   <a-space>
@@ -80,12 +80,9 @@
                 <a-tabs default-active-key="1">
                   <a-tab-pane key="1" title="Params">
                     <div class="tab1">
-                      <config-table 
-                      :columns="queryCol" 
-                      :data="interfaceStore.queryParams"
-                      @addRow="interfaceStore.addRow"
-                      @deleteRow="interfaceStore.deleteRow" 
-                      @updateRowKeys="interfaceStore.updateRowKeys">Query Params</config-table>
+                      <config-table :columns="queryCol" :data="interfaceStore.queryParams" @addRow="interfaceStore.addRow"
+                        @deleteRow="interfaceStore.deleteRow" @updateRowKeys="interfaceStore.updateRowKeys">Query
+                        Params</config-table>
                     </div>
                   </a-tab-pane>
                   <a-tab-pane key="2" title="Headers">
@@ -101,25 +98,24 @@
               </div>
             </div>
           </a-layout-content>
-          <a-layout-footer>
-            <div class="response">
-              <response-box></response-box>
-            </div>
-          </a-layout-footer>
-       </a-layout>
+          <div class="response">
+            <response-box></response-box>
+          </div>
+        </a-layout>
       </a-layout>
     </a-layout>
   </div>
 </template>
 
 <script setup>
-import { ref ,watch} from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import ConfigTable from './cpns/config-table.vue'
 import ResponseBox from './cpns/response-box.vue'
 import SaveInterface from './cpns/save-interface.vue'
 import fileInput from './cpns/file-input.vue'
 import useInterfaceStore from '@/store/modules/interface.js'
 import { IconSave, IconDown } from '@arco-design/web-vue/es/icon'
+import request from '@/server/request.js'
 
 const visible = ref(false)
 const saveBtn = ref(false)
@@ -143,12 +139,23 @@ const queryCol = ref([
 
 const interfaceStore = useInterfaceStore()
 
+onMounted(async () => {
+  // 还少一个获取连接名的请求
+  const { result } = await request.post({
+    url: '/api/interface/show',
+    data: {
+      interfaceID: 1,
+    }
+  })
+  interfaceStore.render(result[0])
+}),
+
 watch(
   () => interfaceStore.queryParams,
   () => {
     interfaceStore.makeURL()
   },
-  {deep: true}
+  { deep: true }
 )
 </script>
 
@@ -175,7 +182,7 @@ watch(
   background-color: var(--color-primary-light-3);
 }
 
-.contentBox{
+.contentBox {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -185,6 +192,10 @@ watch(
   width: 0;
   height: 0;
   color: transparent;
+}
+
+.expandBox {
+  height: 100%;
 }
 
 .interface {
@@ -311,6 +322,7 @@ watch(
 .response {
   width: 100%;
 }
+
 .saveButton :deep(.arco-space-item) {
   margin-right: 3px;
 }
@@ -327,5 +339,4 @@ watch(
   color: white;
   background-color: #097bed;
 }
-
 </style>
