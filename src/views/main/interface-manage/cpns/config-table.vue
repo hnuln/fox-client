@@ -11,7 +11,6 @@
           type="secondary"
           :style="{ width: '27px', height: '27px' }"
           @click="handleAdd"
-          :default-selected-keys="interfaceStore"
         >
           <template #icon>
             <icon-plus />
@@ -28,7 +27,7 @@
         :row-selection="rowSelection"
         :data="data"
         :pagination="false"
-        v-model:selected-keys="interfaceStore.selectedKeys"
+        :selected-keys="selectedKeys"
         class="table"
         @select="handleSelect"
       >
@@ -40,7 +39,7 @@
         </template>
         <template
           #delete="{ record }"
-          v-if="interfaceStore.queryParams.length > 1"
+          v-if="len > 1"
         >
           <a-button
             type="text"
@@ -58,22 +57,35 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { onMounted, reactive, useSlots } from 'vue'
 import { IconPlus, IconDelete } from '@arco-design/web-vue/es/icon'
 import useInterfaceStore from '@/store/modules/interface.js'
-
-const interfaceStore = useInterfaceStore()
 const rowSelection = reactive({
   type: 'checkbox',
   onlyCurrent: false,
 })
 const props = defineProps({
-  columns: Array,
   data: Array,
+  selectedKeys: Array,
+  len: Number,
+  // 用来标识数据组别
 })
-
+const columns = reactive([{
+  title: 'Key',
+  dataIndex: 'key',
+  slotName: 'key'
+},
+{
+  title: 'Value',
+  dataIndex: 'value',
+  slotName: 'value'
+},
+{
+  title: '',
+  dataIndex: 'delete',
+  slotName: 'delete'
+}])
 const emit = defineEmits(['addRow', 'deleteRow', 'updateRowKeys'])
-
 // 参数表格新增一行
 const handleAdd = () => {
   emit('addRow')

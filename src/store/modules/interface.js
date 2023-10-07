@@ -18,6 +18,10 @@ const useInterfaceStore = defineStore('interfaceStore', {
       queryURL: '',
       // 请求方法
       method: 'GET',
+      // json数据
+      jsonData: '',
+      // body数据的索引
+      bodyIndex: '1',
       queryParams: [
         {
           id: 1,
@@ -26,28 +30,66 @@ const useInterfaceStore = defineStore('interfaceStore', {
           isChecked: false,
         }
       ],
-      selectedKeys:[],
-
+      // query params
+      selectedKeys: [],
+      
     }
   },
   // 操作数据的方法函数
   actions: {
+    // 接口请求函数
+    async interfaceRequest(interfaceID) {
+      const { result } = await request.post({
+        url: '/api/interface/show',
+        data: {
+          interfaceID,
+        }
+      })
+      this.render(result[0])
+      sessionStorage.setItem('interface', JSON.stringify(result[0]))
+      // console.log(sessionStorage.getItem('interface'));
+    },
     // 渲染页面
     render(result) {
       this.name = result.interface_name
       this.url = result.url
       this.method = result.method
       this.queryParams = JSON.parse(result.params)
+      this.jsonData = result.json
+      this.bodyIndex = result.bodyIndex
       this.getSelectedKeys()
       this.makeURL()
     },
+    // 保存接口
+    async saveInterface() {
+      if (this.isUpdate()) {
+        const obj = JSON.parse(sessionStorage.getItem('interface'))
+        // console.log('需要更新');
+        const result = await request.post({
+          url: 'api/interface/store',
+          data: {
+            obj,
+          }
+        })
+        if (result.code >= 200 && result.code < 300) {
+          const { insertId } = result
+          this.interfaceRequest(insertId)
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return true
+      }
+    },
+    // 修改接口名称
     async updateName(newValue) {
       let oldValue = this.name
       this.name = newValue
       const result = await request.post({
         url: '/api/interface/updateName',
         data: {
-          interfaceID: 1,
+          interfaceID: 25,
           newName: newValue,
         }
       })
@@ -67,10 +109,12 @@ const useInterfaceStore = defineStore('interfaceStore', {
     },
     // 删除参数
     deleteRow(id) {
+      console.log(id);
       this.queryParams = this.queryParams.filter((item) => item.id !== id)
     },
     // 修改选中状态
     updateRowKeys(rowKeys) {
+      // console.log(rowKeys);
       this.queryParams.forEach((element) => {
         if (rowKeys.includes(element.id)) {
           element.isChecked = true
@@ -78,6 +122,7 @@ const useInterfaceStore = defineStore('interfaceStore', {
           element.isChecked = false
         }
       })
+      this.getSelectedKeys()
     },
     // 拼接参数URL
     makeURL() {
@@ -106,11 +151,32 @@ const useInterfaceStore = defineStore('interfaceStore', {
       })
       this.selectedKeys = res
     },
-
+    // 判断接口是否更改
+    isUpdate() {
+      const oldInterface = JSON.parse(sessionStorage.getItem('interface'))
+      // console.log(oldInterface);
+      const { method, url, json, bodyIndex } = oldInterface
+      // console.log(method, url);
+      console.log(bodyIndex, this.bodyIndex);
+      const params = JSON.parse(oldInterface.params)
+      // console.log(JSON.stringify(params)===JSON.stringify(this.queryParams));
+      // console.log(json, this.jsonData);
+      if (method === this.method && url === this.url && JSON.stringify(params) === JSON.stringify(this.queryParams) && json === this.jsonData && bodyIndex === this.bodyIndex) {
+        return false
+      } else {
+        oldInterface.method = this.method
+        oldInterface.url = this.url
+        oldInterface.params = JSON.stringify(this.queryParams)
+        oldInterface.json = this.jsonData
+        oldInterface.bodyIndex = this.bodyIndex
+        sessionStorage.setItem('interface', JSON.stringify(oldInterface))
+        return true
+      }
+    }
   },
   // 数据获取方法
   getters: {
-    
+
   }
   // 看示例操作数据方法和获取都是封装函数计算，个人理解不同的应该是获取方法有返回值
 })

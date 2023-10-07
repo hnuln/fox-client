@@ -10,7 +10,6 @@ import '@/assets/css/index.less'
 import '@arco-design/web-vue/dist/arco.css'
 
 const app = createApp(App)
-
 app.use(router)
 app.use(pinia)
 app.use(ArcoVue)

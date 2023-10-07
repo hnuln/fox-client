@@ -53,7 +53,7 @@ function FoxRequest(baseURL, timeout) {
           resolve(res.data)
         })
         .catch((err) => {
-          reject(err.data)
+          reject(err)
         })
     })
   }

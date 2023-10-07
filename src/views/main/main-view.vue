@@ -58,6 +58,9 @@ const onSiderBar = (path) => {
 </script>
 
 <style lang="less" scoped>
+:deep(.arco-layout-content) {
+  overflow: hidden;
+}
 .header {
   height: 48px;
   border-bottom: 1px solid var(--color-neutral-3);
